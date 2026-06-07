@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.env
+*.log
+coverage/
+.DS_Store
+
+# Claude Code project settings (contains API credentials — copy from settings.example.json)
+.claude/settings.json
