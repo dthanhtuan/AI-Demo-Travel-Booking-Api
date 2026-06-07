@@ -1,4 +1,4 @@
-# SCRUM-102: GET /venues/:id returns 200 + null for missing venues
+# SCRUM-6: GET /venues/:id returns 200 + null for missing venues
 
 ## Type
 Bug
@@ -14,10 +14,9 @@ code to detect "not found".
 3. Observe: status is `200 OK`, body is `null`.
 4. Expected: status `404 Not Found`, body `{ "error": "Venue not found" }`.
 
-## Root Cause (to be confirmed by the agent)
-`src/venue/venue.controller.ts` — the `GET /:id` handler calls `res.json(venue)`
-directly without checking whether `venue` is `null`. Compare with
-`customer.controller.ts`, which handles this correctly.
+## Environment
+- Endpoint: `GET /venues/:id`
+- Affected branch: main
 
 ## Acceptance Criteria
 - [ ] `GET /venues/:id` for a missing id returns HTTP 404.
@@ -25,15 +24,12 @@ directly without checking whether `venue` is `null`. Compare with
 - [ ] Existing behaviour for a valid id is unchanged (200 + venue object).
 - [ ] A regression test is added that fails before the fix and passes after.
 
-## Affected Files
-- `src/venue/venue.controller.ts`
-- `tests/` — add a regression test (use `supertest` against the app).
+## Affected Area (known)
+- `src/venue/` — controller, service, or repository (to be narrowed by agent)
+- `tests/`
 
 ## Constraints / Non-goals
 - Do not change the service or repository layer — this is purely an HTTP-layer fix.
-
-## Test Expectations
-- Regression test: request a non-existent venue id, assert 404 and the error body.
 
 ## Reviewer
 @backend-lead

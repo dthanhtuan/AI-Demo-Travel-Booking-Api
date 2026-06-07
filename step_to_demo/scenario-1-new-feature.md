@@ -1,8 +1,8 @@
 # Scenario 1 — Single Dev: New Feature
 ### (also the Automation Workflow demo)
 
-**Ticket:** SCRUM-101 — Filter venues by city and max price
-**Branch:** `feat/SCRUM-101-venue-filter`
+**Ticket:** SCRUM-5 — Filter venues by city and max price
+**Branch:** `feat/SCRUM-5-venue-filter`
 
 ---
 
@@ -21,7 +21,7 @@ This is the **automation demo**: one prompt → working code → draft PR with r
 ### Step 1 — Load the ticket
 
 **Option A — Pre-written ticket (simple demo)**
-The ticket file `SCRUM-101.md` is already in `.ai/tickets/`. Point this out:
+The ticket file `SCRUM-5.md` is already in `.ai/tickets/`. Point this out:
 > "The team writes structured tickets in `.ai/tickets/`. That's the only input the agent needs."
 
 **Option B — Pull live from Jira (advanced demo)**
@@ -30,8 +30,8 @@ configured in `.claude/settings.json` (see `.claude/skills/jira.md`).
 
 Use this prompt instead:
 ```
-Fetch ticket SCRUM-101 from Jira using the jira MCP, save the content to
-.ai/tickets/SCRUM-101.md, then implement it on branch feat/SCRUM-101-venue-filter,
+Fetch ticket SCRUM-5 from Jira using the jira MCP, save the content to
+.ai/tickets/SCRUM-5.md, then implement it on branch feat/SCRUM-5-venue-filter,
 run tests, and open a draft PR.
 ```
 
@@ -42,7 +42,7 @@ run tests, and open a draft PR.
 ### Step 2 — Give the automation prompt (Option A — copy-paste this exactly)
 
 ```
-Read .ai/tickets/SCRUM-101.md. Implement the ticket on branch feat/SCRUM-101-venue-filter,
+Read .ai/tickets/SCRUM-5.md. Implement the ticket on branch feat/SCRUM-5-venue-filter,
 run tests, then open a draft PR with the full required description and assign the reviewer
 from the ticket file.
 ```

@@ -75,9 +75,9 @@ CLAUDE.md           Claude-specific context (extends AGENTS.md)
 GEMINI.md           Gemini-specific context (extends AGENTS.md)
 .ai/
   tickets/
-    SCRUM-101.md    new feature ticket (also the automation demo)
-    SCRUM-102.md    bug fix ticket
-    SCRUM-201.md    team parallel-feature ticket (Claude + Gemini)
+    SCRUM-5.md    new feature ticket (also the automation demo)
+    SCRUM-6.md    bug fix ticket
+    SCRUM-7.md    team parallel-feature ticket (Claude + Gemini)
 src/
   db.ts             pg pool
   migrate.ts        migration runner
@@ -103,12 +103,12 @@ docs/
 
 This repo is the sample codebase for four AI-agent workflow scenarios:
 
-| # | Guide       | Scenario                            | Ticket     |
-|---|-------------|-------------------------------------|------------|
-| 1 | Single Dev  | Implement a new feature             | SCRUM-101  |
-| 2 | Single Dev  | Fix a bug on an existing project    | SCRUM-102  |
-| 3 | Dev Team    | Claude + Gemini in parallel         | SCRUM-201  |
-| 4 | Automation  | Jira ticket → AI → PR → reviewer    | SCRUM-101  |
+| # | Guide       | Scenario                            | Ticket  |
+|---|-------------|-------------------------------------|---------|
+| 1 | Single Dev  | Implement a new feature             | SCRUM-5 |
+| 2 | Single Dev  | Fix a bug on an existing project    | SCRUM-6 |
+| 3 | Dev Team    | Claude + Gemini in parallel         | SCRUM-7 |
+| 4 | Automation  | Jira ticket → AI → PR → reviewer    | SCRUM-5 |
 
 See `.ai/tickets/` for the full spec of each scenario.
 

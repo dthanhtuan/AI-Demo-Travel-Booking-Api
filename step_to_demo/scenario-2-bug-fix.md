@@ -1,7 +1,7 @@
 # Scenario 2 — Single Dev: Bug Fix
 
-**Ticket:** SCRUM-102 — GET /venues/:id returns 200 + null for missing venues
-**Branch:** `feat/SCRUM-102-venue-404`
+**Ticket:** SCRUM-6 — GET /venues/:id returns 200 + null for missing venues
+**Branch:** `feat/SCRUM-6-venue-404`
 
 ---
 
@@ -29,8 +29,8 @@ Show the audience: `200 OK` with body `null`. Then say:
 ### Step 2 — Give the prompt
 
 ```
-Read .ai/tickets/SCRUM-102.md. Diagnose the root cause, then fix it on branch
-feat/SCRUM-102-venue-404. Add a regression test that fails before the fix and
+Read .ai/tickets/SCRUM-6.md. Diagnose the root cause, then fix it on branch
+feat/SCRUM-6-venue-404. Add a regression test that fails before the fix and
 passes after. Run the full test suite when done.
 ```
 

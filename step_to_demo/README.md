@@ -6,10 +6,10 @@ This folder is for the **human presenter**. The AI reads files in the project ro
 
 | # | Scenario | Ticket | Time |
 |---|----------|--------|------|
-| 1 | [Single Dev — New Feature](scenario-1-new-feature.md) | SCRUM-101 | ~5 min |
-| 2 | [Single Dev — Bug Fix](scenario-2-bug-fix.md) | SCRUM-102 | ~3 min |
-| 3 | [Team — Claude + Gemini in Parallel](scenario-3-team-parallel.md) | SCRUM-201 | ~8 min |
-| 4 | [Handoff — Mid-Feature Developer Switch](scenario-4-handoff.md) | SCRUM-201 | ~5 min |
+| 1 | [Single Dev — New Feature](scenario-1-new-feature.md) | SCRUM-5 | ~5 min |
+| 2 | [Single Dev — Bug Fix](scenario-2-bug-fix.md) | SCRUM-6 | ~3 min |
+| 3 | [Team — Claude + Gemini in Parallel](scenario-3-team-parallel.md) | SCRUM-7 | ~8 min |
+| 4 | [Handoff — Mid-Feature Developer Switch](scenario-4-handoff.md) | SCRUM-7 | ~5 min |
 
 ## Before You Start
 

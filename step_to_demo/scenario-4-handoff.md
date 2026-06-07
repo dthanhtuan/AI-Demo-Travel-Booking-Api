@@ -1,13 +1,13 @@
 # Scenario 4 — Handoff: Mid-Feature Developer Switch
 
-**Ticket:** SCRUM-201 (same feature as Scenario 3)
-**Branch:** `feat/SCRUM-201-cancel-http` (Claude's branch, left mid-way)
+**Ticket:** SCRUM-7 (same feature as Scenario 3)
+**Branch:** `feat/SCRUM-7-cancel-http` (Claude's branch, left mid-way)
 
 ---
 
 ## The Story
 
-A developer starts implementing SCRUM-201 and gets pulled away mid-task. A second
+A developer starts implementing SCRUM-7 and gets pulled away mid-task. A second
 developer (using a different model) picks up the work cold — in a brand new session,
 with no shared memory. They rely entirely on the `.ai/` files to understand the state
 and continue without losing context.
@@ -47,8 +47,8 @@ Open a **brand new session** (clear context). Give Gemini this prompt:
 
 ```
 Read AGENTS.md, GEMINI.md, .ai/CONTEXT.md, .ai/DECISIONS.md, and
-.ai/tickets/SCRUM-201.md. Summarize what has been done and what remains,
-then continue the work on branch feat/SCRUM-201-cancel-http.
+.ai/tickets/SCRUM-7.md. Summarize what has been done and what remains,
+then continue the work on branch feat/SCRUM-7-cancel-http.
 ```
 
 Watch Gemini:
@@ -60,12 +60,12 @@ Watch Gemini:
 
 ## What the Audience Should See
 
-| Without `.ai/` protocol | With `.ai/` protocol |
-|--------------------------|----------------------|
-| Dev 2 starts from scratch | Dev 2 picks up in minutes |
-| Needs a Slack thread or verbal briefing | All context is in the repo |
-| Tied to one model/tool | Any model reads the same files |
-| Context lost when session ends | Context is committed to git |
+| Without `.ai/` protocol                 | With `.ai/` protocol           |
+|-----------------------------------------|--------------------------------|
+| Dev 2 starts from scratch               | Dev 2 picks up in minutes      |
+| Needs a Slack thread or verbal briefing | All context is in the repo     |
+| Tied to one model/tool                  | Any model reads the same files |
+| Context lost when session ends          | Context is committed to git    |
 
 ---
 

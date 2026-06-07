@@ -1,7 +1,7 @@
 # Scenario 3 — Team: Claude + Gemini in Parallel
 
-**Ticket:** SCRUM-201 — Booking cancellation
-**Branches:** `feat/SCRUM-201-cancel-data` (Gemini) · `feat/SCRUM-201-cancel-http` (Claude)
+**Ticket:** SCRUM-7 — Booking cancellation
+**Branches:** `feat/SCRUM-7-cancel-data` (Gemini) · `feat/SCRUM-7-cancel-http` (Claude)
 
 ---
 
@@ -37,9 +37,9 @@ export interface CancelBookingResult {
 
 **Prompt for Gemini:**
 ```
-Read AGENTS.md, GEMINI.md, .ai/DECISIONS.md, and .ai/tickets/SCRUM-201.md.
+Read AGENTS.md, GEMINI.md, .ai/DECISIONS.md, and .ai/tickets/SCRUM-7.md.
 You are Dev A. Build the data layer (repository + service) for the cancellation
-feature on branch feat/SCRUM-201-cancel-data. Run tests when done.
+feature on branch feat/SCRUM-7-cancel-data. Run tests when done.
 ```
 
 **Gemini will touch:**
@@ -57,9 +57,9 @@ feature on branch feat/SCRUM-201-cancel-data. Run tests when done.
 
 **Prompt for Claude:**
 ```
-Read AGENTS.md, CLAUDE.md, .ai/DECISIONS.md, and .ai/tickets/SCRUM-201.md.
+Read AGENTS.md, CLAUDE.md, .ai/DECISIONS.md, and .ai/tickets/SCRUM-7.md.
 You are Dev B. Build the HTTP layer (controller route) for the cancellation
-feature on branch feat/SCRUM-201-cancel-http. Run tests when done.
+feature on branch feat/SCRUM-7-cancel-http. Run tests when done.
 ```
 
 **Claude will touch:**
