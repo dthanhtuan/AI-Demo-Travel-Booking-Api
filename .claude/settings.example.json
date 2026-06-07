@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "jira": {
+      "command": "npx",
+      "args": ["-y", "mcp-atlassian"],
+      "env": {
+        "ATLASSIAN_API_TOKEN": "your-atlassian-api-token",
+        "ATLASSIAN_EMAIL": "your-email@example.com",
+        "ATLASSIAN_DOMAIN": "your-domain.atlassian.net"
+      }
+    }
+  }
+}
