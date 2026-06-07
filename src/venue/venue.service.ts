@@ -1,8 +1,8 @@
 import * as repo from "./venue.repository";
-import { Venue } from "../types";
+import { Venue, VenueFilter } from "../types";
 
-export async function listVenues(): Promise<Venue[]> {
-  return repo.findAll();
+export async function listVenues(filter: VenueFilter = {}): Promise<Venue[]> {
+  return repo.findAll(filter);
 }
 
 export async function getVenue(id: number): Promise<Venue | null> {

@@ -32,6 +32,11 @@ export interface Booking {
   created_at: string;
 }
 
+export interface VenueFilter {
+  city?: string;
+  maxPrice?: number;
+}
+
 export interface CreateBookingInput {
   customer_id: number;
   venue_id: number;
