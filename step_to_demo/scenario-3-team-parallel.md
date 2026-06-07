@@ -8,7 +8,7 @@
 ## The Story
 
 One feature, two AI models, zero conflicts. Before any code is written, the team locks
-the shared contract in `.ai/DECISIONS.md`. Then Claude and Gemini each build their half
+the shared contract in the ticket. Then Claude and Gemini each build their half
 independently. When both branches are merged, they fit together cleanly — because they
 never touched the same files.
 
@@ -16,9 +16,10 @@ never touched the same files.
 
 ## Setup — Show the Pre-Locked Contract
 
-Before starting either agent session, open `.ai/DECISIONS.md` and point to the entry:
+Before starting either agent session, open `.ai/tickets/SCRUM-7.md` and point to the
+**Shared Contract** section:
 
-> "The interface and status codes are agreed and written down here. Both agents will
+> "The interface and status codes are agreed and written into the ticket. Both agents will
 > build against this contract. Neither needs to wait for the other."
 
 ```ts
@@ -37,8 +38,8 @@ export interface CancelBookingResult {
 
 **Prompt for Gemini:**
 ```
-Read AGENTS.md, GEMINI.md, .ai/DECISIONS.md, and .ai/tickets/SCRUM-7.md.
-You are Dev A. Build the data layer (repository + service) for the cancellation
+Read AGENTS.md, GEMINI.md, and .ai/tickets/SCRUM-7.md.
+You are Dev A. Build the data layer (tasks 1–3) for the cancellation
 feature on branch feat/SCRUM-7-cancel-data. Run tests when done.
 ```
 
@@ -57,8 +58,8 @@ feature on branch feat/SCRUM-7-cancel-data. Run tests when done.
 
 **Prompt for Claude:**
 ```
-Read AGENTS.md, CLAUDE.md, .ai/DECISIONS.md, and .ai/tickets/SCRUM-7.md.
-You are Dev B. Build the HTTP layer (controller route) for the cancellation
+Read AGENTS.md, CLAUDE.md, and .ai/tickets/SCRUM-7.md.
+You are Dev B. Build the HTTP layer (tasks 4–6) for the cancellation
 feature on branch feat/SCRUM-7-cancel-http. Run tests when done.
 ```
 
@@ -81,8 +82,8 @@ Show the audience:
 
 ## Talking Points
 
-- **Contract first, code second.** `DECISIONS.md` is the handshake. Without it, both
-  agents would invent their own response shapes and collide.
+- **Contract first, code second.** The shared interface in the ticket is the handshake.
+  Without it, both agents would invent their own response shapes and collide.
 - **`AGENTS.md` is model-agnostic.** Claude and Gemini follow the same rules (commits,
   tests, layering) because the rules are written in plain English in the repo.
 - **Different strengths, same repo.** Gemini's large context window is useful for

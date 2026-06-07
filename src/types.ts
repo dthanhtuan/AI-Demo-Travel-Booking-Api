@@ -1,8 +1,8 @@
 // Shared domain types — the integration point between layers and developers.
 //
 // IMPORTANT (team rule): changes to this file are a shared contract.
-// Lock any new interface in .ai/DECISIONS.md BEFORE editing here, so that
-// two developers (or two AI models) working in parallel never collide.
+// New interfaces for parallel tickets must be defined in the ticket file
+// (.ai/tickets/TICKET-ID.md) before being added here.
 
 export interface Venue {
   id: number;

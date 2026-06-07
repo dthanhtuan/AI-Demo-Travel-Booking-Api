@@ -51,7 +51,7 @@ from the ticket file.
 Point out to the audience as it happens:
 - It reads `AGENTS.md` first (the rules file shapes its behavior)
 - It reads the ticket and states the plan before touching code
-- It adds `VenueFilter` to `src/types.ts` and locks it in `.ai/DECISIONS.md`
+- It adds `VenueFilter` to `src/types.ts`
 - Filtering is in SQL (repository layer), not JS — because the ticket says so
 - It runs `npm test` itself; it doesn't ask you to
 
@@ -66,7 +66,6 @@ Point out to the audience as it happens:
 | `src/venue/venue.service.ts` | Passes filter options through |
 | `src/venue/venue.controller.ts` | Parses + validates query params |
 | `tests/venue.service.test.ts` | New unit tests |
-| `.ai/DECISIONS.md` | Records the new interface |
 
 ---
 

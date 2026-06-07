@@ -112,6 +112,9 @@ Every PR description must include:
   acceptance criteria, reviewer, shared interface contract for parallel features, and
   the handoff block when a developer stops mid-task.
 
+**Rule:** Do NOT create any other files under `.ai/`. All ticket context, contracts, and
+handoff notes belong inside the ticket file itself.
+
 ## Handoff Protocol
 
 When stopping mid-task (end of session, handing off to another developer or model):

@@ -31,13 +31,13 @@ to produce a handoff note.
 
 **Prompt:**
 ```
-I need to stop here. Update .ai/CONTEXT.md with exactly what is done, what is
-in progress, and what still needs doing on this branch. Be specific about file
-names and method names. Then commit the update.
+I need to stop here. Append a Handoff section to .ai/tickets/SCRUM-7.md with
+exactly what is done, what is in progress, and what still needs doing on this
+branch. Be specific about file names and method names. Then commit the update.
 ```
 
-Show the audience the updated `CONTEXT.md`:
-> "This is the handoff document. It lives in the repo, not in someone's head or Slack."
+Show the audience the updated ticket file:
+> "The handoff note lives in the ticket, right next to the spec. It's in the repo, not in someone's head or Slack."
 
 ---
 
@@ -46,9 +46,8 @@ Show the audience the updated `CONTEXT.md`:
 Open a **brand new session** (clear context). Give Gemini this prompt:
 
 ```
-Read AGENTS.md, GEMINI.md, .ai/CONTEXT.md, .ai/DECISIONS.md, and
-.ai/tickets/SCRUM-7.md. Summarize what has been done and what remains,
-then continue the work on branch feat/SCRUM-7-cancel-http.
+Read AGENTS.md, GEMINI.md, and .ai/tickets/SCRUM-7.md. Summarize what has
+been done and what remains, then continue the work on branch feat/SCRUM-7-cancel-http.
 ```
 
 Watch Gemini:
