@@ -46,4 +46,4 @@ export interface CancelBookingResult {
 - Do NOT change the capacity rule's SQL beyond what `status = 'cancelled'` already implies.
 
 ## Reviewer
-@backend-lead
+@dthanhtuan
