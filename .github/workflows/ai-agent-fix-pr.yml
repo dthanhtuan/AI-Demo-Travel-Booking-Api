@@ -21,8 +21,9 @@ jobs:
 
       - name: Setup Git User
         run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "dthanhtuan"
+          git config --global user.email "tuan.dao.fr@gmail.com"
+          git remote set-url origin https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ github.repository }}
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -43,7 +44,7 @@ jobs:
       - name: Extract Review Comments
         id: collect_feedback
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
           if [ "${{ github.event_name }}" = "pull_request_review" ]; then
             # Batch: scrape all comments tied to this Review ID

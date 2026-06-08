@@ -44,22 +44,29 @@ For this demo we use **Claude** via the Anthropic API:
 ### 2 — GitHub Personal Access Token (used by Jira to call the GitHub API)
 
 1. Go to **GitHub > Settings > Developer settings > Personal access tokens > Fine-grained tokens**
-2. Click **Generate new token**, scope it to **only this repository**, and under **Repository permissions** set **Contents** to **Read and Write**
+2. Click **Generate new token**, scope it to **only this repository**, and set these **Repository permissions**:
+   - **Contents** — Read and Write (push code, trigger `repository_dispatch`)
+   - **Pull requests** — Read and Write (open PRs, read review comments)
 3. Copy the token value
-4. Store it in Jira: **Project Settings > Automation > Secrets > Create secret**
-   - Name: `GITHUB_PAT`
+4. Add it to GitHub: **repo > Settings > Secrets and variables > Actions > New repository secret**
+   - Name: `GH_PAT`
    - Value: your token
-5. Reference it in the Jira Automation rule as `{{secrets.GITHUB_PAT}}`
+5. Also store it in Jira: **Project Settings > Automation > Secrets > Create secret**
+   - Name: `GH_PAT`
+   - Value: same token
+6. Reference it in the Jira Automation rule as `{{secrets.GH_PAT}}`
 
-> **Token options — trade-offs:**
+> **Security note — demo vs production:**
+>
+> For this demo, the same `GH_PAT` is stored in both GitHub (for the runner) and Jira (for the webhook trigger). This is a convenience shortcut — **do not do this in production**. The Jira secret only needs permission to call `repository_dispatch`; the GitHub secret needs push and PR access. Sharing one token across both surfaces means a leaked Jira secret can push code. Before going to production, split into two separate tokens (or replace with a GitHub App).
+>
+> **We will revoke `GH_PAT` after the demo.**
 >
 > | Option                           | Best for          | Downside                                                                                                     |
 > |----------------------------------|-------------------|--------------------------------------------------------------------------------------------------------------|
-> | **Fine-grained PAT** (used here) | Demo, single repo | Scoped to one repo only — safer than Classic PAT; still tied to one person's account                         |
+> | **Fine-grained PAT** (used here) | Demo, single repo | Scoped to one repo only — but shared across Jira and GitHub is a security risk                               |
 > | **Classic PAT**                  | Quick setup       | Wide scope (`repo`) — avoid for shared or production use                                                     |
 > | **GitHub App**                   | Teams, production | Best security and auto-rotation, but requires registering an app and handling token exchange in the workflow |
->
-> For this demo, fine-grained PAT is the right choice — it limits blast radius to this one repo. Migrate to a GitHub App before using this in a team or production environment.
 
 ---
 
@@ -79,7 +86,7 @@ Navigate to **Project Settings > Automation > Create rule**.
 | HTTP method          | `POST`                                                       |
 | Web request body     | `Custom data`                                                |
 | Content-type         | `application/json`                                           |
-| Authorization header | `Bearer {{secrets.GITHUB_PAT}}`                              |
+| Authorization header | `Bearer {{secrets.GH_PAT}}`                              |
 
 **Custom data (payload):**
 ```json
@@ -111,7 +118,7 @@ Navigate to **Project Settings > Automation > Create rule**.
 └────────────┬────────────────┘
              │
              │  POST https://api.github.com/repos/ORG/REPO/dispatches
-             │  Authorization: Bearer {{secrets.GITHUB_PAT}}
+             │  Authorization: Bearer {{secrets.GH_PAT}}
              │  Body: { event_type, client_payload: { ticket_id, ticket_title } }
              │
              ▼
@@ -147,13 +154,13 @@ Navigate to **Project Settings > Automation > Create rule**.
 
 Add these in **repo > Settings > Secrets and variables > Actions > New repository secret** before setting up the workflows.
 
-| Secret              | Where to add                    | Purpose                                                                     |
-|---------------------|---------------------------------|-----------------------------------------------------------------------------|
-| `ANTHROPIC_API_KEY` | GitHub repo secrets             | Aider's model backend                                                       |
-| `JIRA_BASE_URL`     | GitHub repo secrets             | e.g. `https://yourcompany.atlassian.net`                                    |
-| `JIRA_USER_EMAIL`   | GitHub repo secrets             | Your Jira account email                                                     |
-| `JIRA_API_TOKEN`    | GitHub repo secrets             | Jira API token (from `id.atlassian.com/manage-profile/security/api-tokens`) |
-| `GITHUB_TOKEN`      | Auto-provided by GitHub Actions | Push code and create PRs                                                    |
+| Secret              | Where to add                    | Purpose                                                                              |
+|---------------------|---------------------------------|--------------------------------------------------------------------------------------|
+| `ANTHROPIC_API_KEY` | GitHub repo secrets             | Aider's model backend                                                                |
+| `JIRA_BASE_URL`     | GitHub repo secrets             | e.g. `https://yourcompany.atlassian.net`                                             |
+| `JIRA_USER_EMAIL`   | GitHub repo secrets             | Your Jira account email                                                              |
+| `JIRA_API_TOKEN`    | GitHub repo secrets             | Jira API token (from `id.atlassian.com/manage-profile/security/api-tokens`)          |
+| `GH_PAT`            | GitHub repo secrets             | Push code, create PRs, and call GitHub API from the runner                           |
 
 ---
 

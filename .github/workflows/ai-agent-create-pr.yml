@@ -20,8 +20,9 @@ jobs:
 
       - name: Setup Git User
         run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "dthanhtuan"
+          git config --global user.email "tuan.dao.fr@gmail.com"
+          git remote set-url origin https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ github.repository }}
 
       - name: Create New Branch
         run: git checkout -b feature/${{ steps.jira.outputs.ticket_id }}
@@ -82,7 +83,7 @@ jobs:
 
       - name: Push Code and Create Pull Request
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
           git push origin feature/${{ steps.jira.outputs.ticket_id }}
           gh pr create \
