@@ -44,7 +44,7 @@ For this demo we use **Gemini** (free tier, no billing required):
 ### 2 — GitHub Personal Access Token (used by Jira to call the GitHub API)
 
 1. Go to **GitHub > Settings > Developer settings > Personal access tokens > Fine-grained tokens**
-2. Click **Generate new token**, scope it to **only this repository**, and under **Repository permissions** set **Actions** to **Read and Write**
+2. Click **Generate new token**, scope it to **only this repository**, and under **Repository permissions** set **Contents** to **Read and Write**
 3. Copy the token value
 4. Store it in Jira: **Project Settings > Automation > Secrets > Create secret**
    - Name: `GITHUB_PAT`
@@ -92,7 +92,8 @@ Navigate to **Project Settings > Automation > Create rule**.
 }
 ```
 
-> Only pass `ticket_id` and `ticket_title` — embedding `{{issue.description}}` directly into JSON breaks the payload because descriptions often contain quotes, newlines, and special characters. The workflow will use `ticket_id` to fetch the full description from Jira if needed.
+> Only pass `ticket_id` and `ticket_title` — avoid embedding `{{issue.description}}` directly as descriptions break JSON parsing.
+> `event_type` is required by the GitHub `repository_dispatch` API. `client_payload` is accessible in the workflow via `github.event.client_payload`.
 
 ---
 
@@ -111,7 +112,7 @@ Navigate to **Project Settings > Automation > Create rule**.
              │
              │  POST https://api.github.com/repos/ORG/REPO/dispatches
              │  Authorization: Bearer {{secrets.GITHUB_PAT}}
-             │  Body: { event_type, client_payload: { issue } }
+             │  Body: { event_type, client_payload: { ticket_id, ticket_title } }
              │
              ▼
 ┌─────────────────────────────┐
