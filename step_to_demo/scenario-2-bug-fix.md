@@ -43,15 +43,6 @@ The agent will:
 
 ---
 
-## Files the Agent Will Touch
-
-| File | What changes |
-|------|-------------|
-| `src/venue/venue.controller.ts` | Add null check → return 404 |
-| `tests/venue.controller.test.ts` | New regression test |
-
----
-
 ## Acceptance Criteria (what to verify live)
 
 ```bash
@@ -62,11 +53,3 @@ curl -i http://localhost:3000/venues/1
 # Expected: 200 OK  { venue object }
 ```
 
----
-
-## Talking Points
-
-- **Root cause first, then fix.** The agent doesn't guess — it reads the broken code,
-  compares it to a working example in the same repo, and explains the discrepancy.
-- **Minimal change.** The fix is 3 lines in one file. The agent doesn't refactor anything else.
-- **Regression test.** The test is written to fail on the unfixed code, proving it's a real guard.

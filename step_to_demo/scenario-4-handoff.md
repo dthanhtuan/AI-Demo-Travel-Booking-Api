@@ -66,13 +66,3 @@ Watch Gemini:
 | Tied to one model/tool                  | Any model reads the same files |
 | Context lost when session ends          | Context is committed to git    |
 
----
-
-## Talking Points
-
-- **The handoff is just a commit.** No tickets updated manually, no Slack messages —
-  the AI writes its own handoff note into the repo.
-- **Any model can continue.** Gemini picks up Claude's branch because it reads the
-  same `AGENTS.md` and `CONTEXT.md`. The work is in the files, not in the model.
-- **This scales to human handoffs too.** A human developer joining the project follows
-  the same session-start checklist in `AGENTS.md`.

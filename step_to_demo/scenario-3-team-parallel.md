@@ -78,14 +78,3 @@ Show the audience:
 - Claude's branch touches: controller, integration tests
 - **Zero file overlap** → merge is automatic, no conflict resolution needed
 
----
-
-## Talking Points
-
-- **Contract first, code second.** The shared interface in the ticket is the handshake.
-  Without it, both agents would invent their own response shapes and collide.
-- **`AGENTS.md` is model-agnostic.** Claude and Gemini follow the same rules (commits,
-  tests, layering) because the rules are written in plain English in the repo.
-- **Different strengths, same repo.** Gemini's large context window is useful for
-  reasoning about data layer ripple effects. Claude owns the HTTP mapping. Each plays
-  to its strength.
