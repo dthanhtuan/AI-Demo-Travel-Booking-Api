@@ -64,22 +64,22 @@ jobs:
 
           echo "description_file=ticket_description.txt" >> $GITHUB_OUTPUT
 
-#      - name: Run Aider
-#        env:
-#          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-#        run: |
-#          DESCRIPTION=$(cat ticket_description.txt)
-#          aider --architect --yes --no-pretty \
-#            --model claude-sonnet-4-5 \
-#            --message "Ticket ID: ${{ steps.jira.outputs.ticket_id }}. \
-#            Title: ${{ steps.jira.outputs.ticket_title }}. \
-#            Description: ${DESCRIPTION}. \
-#            MANDATORY: Read AGENTS.md and follow all architecture, naming, and \
-#            testing conventions before modifying any file." \
-#            > aider.log 2>&1 || { cat aider.log; exit 1; }
-#
-#          echo "=== Aider completed ==="
-#          tail -20 aider.log
+      - name: Run Aider
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          DESCRIPTION=$(cat ticket_description.txt)
+          aider --architect --yes --no-pretty \
+            --model claude-sonnet-4-5 \
+            --message "Ticket ID: ${{ steps.jira.outputs.ticket_id }}. \
+            Title: ${{ steps.jira.outputs.ticket_title }}. \
+            Description: ${DESCRIPTION}. \
+            MANDATORY: Read AGENTS.md and follow all architecture, naming, and \
+            testing conventions before modifying any file." \
+            > aider.log 2>&1 || { cat aider.log; exit 1; }
+
+          echo "=== Aider completed ==="
+          tail -20 aider.log
 
       - name: Push Code and Create Pull Request
         env:
