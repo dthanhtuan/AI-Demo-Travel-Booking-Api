@@ -2,7 +2,6 @@ name: "AI Agent: Create PR from Jira"
 
 on:
   repository_dispatch:
-    types: [jira-ticket-assigned]
 
 jobs:
   create_pull_request:
@@ -11,9 +10,8 @@ jobs:
       - name: Extract Jira fields from payload
         id: jira
         run: |
-          echo "ticket_id=${{ github.event.client_payload.issue.key }}" >> $GITHUB_OUTPUT
-          echo "ticket_title=${{ github.event.client_payload.issue.fields.summary }}" >> $GITHUB_OUTPUT
-          echo '${{ toJson(github.event.client_payload.issue.fields.description) }}' > ticket_description.txt
+          echo "ticket_id=${{ github.event.client_payload.ticket_id }}" >> $GITHUB_OUTPUT
+          echo "ticket_title=${{ github.event.client_payload.ticket_title }}" >> $GITHUB_OUTPUT
 
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -40,14 +38,14 @@ jobs:
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
-          DESCRIPTION=$(cat ticket_description.txt)
           aider --architect --yes \
             --model gemini/gemini-2.0-flash \
             --message "Task: ${{ steps.jira.outputs.ticket_title }}. \
-            Detailed Requirements: $DESCRIPTION. \
-            MANDATORY: Read AGENTS.md at the workspace root and strictly follow \
-            the defined architecture, naming conventions, and testing procedures \
-            before modifying any file."
+            Ticket ID: ${{ steps.jira.outputs.ticket_id }}. \
+            MANDATORY: Read AGENTS.md at the workspace root and the ticket file \
+            .ai/tickets/${{ steps.jira.outputs.ticket_id }}.md if it exists. \
+            Strictly follow the defined architecture, naming conventions, and \
+            testing procedures before modifying any file."
 
       - name: Push Code and Create Pull Request
         env:

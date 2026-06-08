@@ -86,18 +86,13 @@ Navigate to **Project Settings > Automation > Create rule**.
 {
   "event_type": "jira-ticket-assigned",
   "client_payload": {
-    "issue": {
-      "key": "{{issue.key}}",
-      "fields": {
-        "summary": "{{issue.summary}}",
-        "description": "{{issue.description}}"
-      }
-    }
+    "ticket_id": "{{issue.key}}",
+    "ticket_title": "{{issue.summary}}"
   }
 }
 ```
 
-> `event_type` must match the value in the workflow's `types: [jira-ticket-assigned]` — this is how GitHub Actions knows which workflow to trigger. The `client_payload` carries the ticket data and is accessed in the workflow via `github.event.client_payload`.
+> Only pass `ticket_id` and `ticket_title` — embedding `{{issue.description}}` directly into JSON breaks the payload because descriptions often contain quotes, newlines, and special characters. The workflow will use `ticket_id` to fetch the full description from Jira if needed.
 
 ---
 
