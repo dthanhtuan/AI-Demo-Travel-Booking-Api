@@ -70,7 +70,7 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
           ALL_FEEDBACK=$(cat feedback.txt)
-          aider --architect --yes \
+          aider --architect --yes --no-pretty \
             --model claude-sonnet-4-5 \
             --message "A reviewer left feedback requesting code changes. \
             First read AGENTS.md at the workspace root to ensure changes align \
@@ -78,7 +78,11 @@ jobs:
 
             === REQUESTED EDITS ===
             $ALL_FEEDBACK
-            ======================"
+            ======================" \
+            > aider.log 2>&1 || { cat aider.log; exit 1; }
+
+          echo "=== Aider completed ==="
+          tail -20 aider.log
 
       - name: Push Updated Code
         if: steps.check_mention.outputs.should_run == 'true'

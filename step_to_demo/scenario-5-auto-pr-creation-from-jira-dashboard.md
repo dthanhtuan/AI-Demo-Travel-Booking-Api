@@ -136,10 +136,24 @@ Navigate to **Project Settings > Automation > Create rule**.
 │  1. Extract ticket fields   │
 │  2. Checkout code           │
 │  3. Create branch           │
-│  4. Run Aider (Gemini)      │
+│  4. Run Aider (Claude)      │
 │  5. Push + open draft PR    │
 └─────────────────────────────┘
 ```
+
+---
+
+## GitHub Secrets Required
+
+Add these in **repo > Settings > Secrets and variables > Actions > New repository secret** before setting up the workflows.
+
+| Secret              | Where to add                    | Purpose                                                                     |
+|---------------------|---------------------------------|-----------------------------------------------------------------------------|
+| `ANTHROPIC_API_KEY` | GitHub repo secrets             | Aider's model backend                                                       |
+| `JIRA_BASE_URL`     | GitHub repo secrets             | e.g. `https://yourcompany.atlassian.net`                                    |
+| `JIRA_USER_EMAIL`   | GitHub repo secrets             | Your Jira account email                                                     |
+| `JIRA_API_TOKEN`    | GitHub repo secrets             | Jira API token (from `id.atlassian.com/manage-profile/security/api-tokens`) |
+| `GITHUB_TOKEN`      | Auto-provided by GitHub Actions | Push code and create PRs                                                    |
 
 ---
 
@@ -163,9 +177,8 @@ jobs:
       - name: Extract Jira fields from payload
         id: jira
         run: |
-          echo "ticket_id=${{ github.event.client_payload.issue.key }}" >> $GITHUB_OUTPUT
-          echo "ticket_title=${{ github.event.client_payload.issue.fields.summary }}" >> $GITHUB_OUTPUT
-          echo '${{ toJson(github.event.client_payload.issue.fields.description) }}' > ticket_description.txt
+          echo "ticket_id=${{ github.event.client_payload.ticket_id }}" >> $GITHUB_OUTPUT
+          echo "ticket_title=${{ github.event.client_payload.ticket_title }}" >> $GITHUB_OUTPUT
 
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -174,8 +187,8 @@ jobs:
 
       - name: Setup Git User
         run: |
-          git config --global user.name "AI-Agent-Bot"
-          git config --global user.email "ai-agent-bot@yourdomain.com"
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
       - name: Create New Branch
         run: git checkout -b feature/${{ steps.jira.outputs.ticket_id }}
@@ -185,21 +198,52 @@ jobs:
         with:
           python-version: '3.11'
 
+      - name: Cache pip packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-aider-${{ hashFiles('**/requirements*.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-aider-
+
       - name: Install Aider
         run: pip install aider-chat
+
+      - name: Fetch full ticket from Jira
+        id: ticket
+        env:
+          JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
+          JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+        run: |
+          TICKET_ID="${{ steps.jira.outputs.ticket_id }}"
+          curl -s \
+            -u "${JIRA_USER_EMAIL}:${JIRA_API_TOKEN}" \
+            -H "Accept: application/json" \
+            "${JIRA_BASE_URL}/rest/api/3/issue/${TICKET_ID}" \
+            > ticket_raw.json
+
+          # Extract description text from Atlassian Document Format
+          jq -r '
+            .fields.description.content[]?.content[]?.text // empty
+          ' ticket_raw.json | tr '\n' ' ' > ticket_description.txt
 
       - name: Run Aider
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
           DESCRIPTION=$(cat ticket_description.txt)
-          aider --architect --yes \
-            --model gemini/gemini-2.0-flash \
-            --message "Task: ${{ steps.jira.outputs.ticket_title }}. \
-            Detailed Requirements: $DESCRIPTION. \
-            MANDATORY: Read AGENTS.md at the workspace root and strictly follow \
-            the defined architecture, naming conventions, and testing procedures \
-            before modifying any file."
+          aider --architect --yes --no-pretty \
+            --model claude-sonnet-4-5 \
+            --message "Ticket ID: ${{ steps.jira.outputs.ticket_id }}. \
+            Title: ${{ steps.jira.outputs.ticket_title }}. \
+            Description: ${DESCRIPTION}. \
+            MANDATORY: Read AGENTS.md and follow all architecture, naming, and \
+            testing conventions before modifying any file." \
+            > aider.log 2>&1 || { cat aider.log; exit 1; }
+
+          echo "=== Aider completed ==="
+          tail -20 aider.log
 
       - name: Push Code and Create Pull Request
         env:
@@ -248,14 +292,24 @@ jobs:
 
       - name: Setup Git User
         run: |
-          git config --global user.name "AI-Agent-Bot"
-          git config --global user.email "ai-agent-bot@yourdomain.com"
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Set up Python & Install Aider
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - run: pip install aider-chat
+
+      - name: Cache pip packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-aider-${{ hashFiles('**/requirements*.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-aider-
+
+      - name: Install Aider
+        run: pip install aider-chat
 
       - name: Extract Review Comments
         id: collect_feedback
@@ -287,15 +341,19 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
           ALL_FEEDBACK=$(cat feedback.txt)
-          aider --architect --yes \
-            --model gemini/gemini-2.0-flash \
+          aider --architect --yes --no-pretty \
+            --model claude-sonnet-4-5 \
             --message "A reviewer left feedback requesting code changes. \
             First read AGENTS.md at the workspace root to ensure changes align \
             with project standards. Then implement the following edits:
 
             === REQUESTED EDITS ===
             $ALL_FEEDBACK
-            ======================"
+            ======================" \
+            > aider.log 2>&1 || { cat aider.log; exit 1; }
+
+          echo "=== Aider completed ==="
+          tail -20 aider.log
 
       - name: Push Updated Code
         if: steps.check_mention.outputs.should_run == 'true'
@@ -315,10 +373,3 @@ jobs:
 
 ---
 
-## GitHub Secrets Required
-
-| Secret           | Where to add                    | Purpose                                       |
-|------------------|---------------------------------|-----------------------------------------------|
-| `ANTHROPIC_API_KEY` | GitHub repo secrets             | Aider's model backend                         |
-| `GITHUB_TOKEN`   | Auto-provided by GitHub Actions | Push code and create PRs                      |
-| `GITHUB_PAT`     | Jira Automation secrets         | Authenticate Jira's web request to GitHub API |
