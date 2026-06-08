@@ -44,10 +44,10 @@ jobs:
 
       - name: Run Aider
         env:
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
           aider --architect --yes \
-            --model gemini/gemini-2.0-flash \
+            --model claude-sonnet-4-5 \
             --message "Task: ${{ steps.jira.outputs.ticket_title }}. \
             Ticket ID: ${{ steps.jira.outputs.ticket_id }}. \
             MANDATORY: Read AGENTS.md at the workspace root and the ticket file \

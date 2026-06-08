@@ -67,11 +67,11 @@ jobs:
       - name: Run Aider Fix
         if: steps.check_mention.outputs.should_run == 'true'
         env:
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
           ALL_FEEDBACK=$(cat feedback.txt)
           aider --architect --yes \
-            --model gemini/gemini-2.0-flash \
+            --model claude-sonnet-4-5 \
             --message "A reviewer left feedback requesting code changes. \
             First read AGENTS.md at the workspace root to ensure changes align \
             with project standards. Then implement the following edits:

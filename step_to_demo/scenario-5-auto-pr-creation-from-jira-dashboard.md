@@ -29,16 +29,16 @@ From that point, no human types a single line of code. The system:
 
 ## Prerequisites
 
-### 1 — Gemini API Key (used by Aider on the runner)
+### 1 — Anthropic API Key (used by Aider on the runner)
 
-> **Claude Pro (claude.ai) does not include API access.** They are separate products.
+> **Claude Pro (claude.ai) does not include API access.** They are separate products with separate billing.
 
-For this demo we use **Gemini** (free tier, no billing required):
+For this demo we use **Claude** via the Anthropic API:
 
-1. Go to `aistudio.google.com`
-2. Click **Get API key > Create API key** and copy the value
+1. Sign up at `console.anthropic.com` (separate from your claude.ai account)
+2. Go to **API Keys > Create Key** and copy the value
 3. Add it to GitHub: **repo > Settings > Secrets and variables > Actions > New repository secret**
-   - Name: `GEMINI_API_KEY`
+   - Name: `ANTHROPIC_API_KEY`
    - Value: your key
 
 ### 2 — GitHub Personal Access Token (used by Jira to call the GitHub API)
@@ -190,7 +190,7 @@ jobs:
 
       - name: Run Aider
         env:
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
           DESCRIPTION=$(cat ticket_description.txt)
           aider --architect --yes \
@@ -284,7 +284,7 @@ jobs:
       - name: Run Aider Fix
         if: steps.check_mention.outputs.should_run == 'true'
         env:
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
           ALL_FEEDBACK=$(cat feedback.txt)
           aider --architect --yes \
@@ -319,6 +319,6 @@ jobs:
 
 | Secret           | Where to add                    | Purpose                                       |
 |------------------|---------------------------------|-----------------------------------------------|
-| `GEMINI_API_KEY` | GitHub repo secrets             | Aider's model backend                         |
+| `ANTHROPIC_API_KEY` | GitHub repo secrets             | Aider's model backend                         |
 | `GITHUB_TOKEN`   | Auto-provided by GitHub Actions | Push code and create PRs                      |
 | `GITHUB_PAT`     | Jira Automation secrets         | Authenticate Jira's web request to GitHub API |
