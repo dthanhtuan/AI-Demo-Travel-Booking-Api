@@ -1,0 +1,76 @@
+name: "AI Agent: Auto-Fix PR from Review Comments"
+
+on:
+  # Scenario A: Reviewer clicks "Submit Review" — batch of many comments at once
+  pull_request_review:
+    types: [submitted]
+
+  # Scenario B: Reviewer drops a single comment or replies on an existing thread
+  pull_request_review_comment:
+    types: [created]
+
+jobs:
+  auto_fix_review:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          fetch-depth: 0
+
+      - name: Setup Git User
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Set up Python & Install Aider
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install aider-chat
+
+      - name: Extract Review Comments
+        id: collect_feedback
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request_review" ]; then
+            # Batch: scrape all comments tied to this Review ID
+            gh api repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/reviews/${{ github.event.review.id }}/comments \
+              --jq '.[].body' > feedback.txt
+          else
+            # Single comment or reply
+            echo "${{ github.event.comment.body }}" > feedback.txt
+          fi
+          cat feedback.txt
+
+      - name: Check for AI Agent Mention
+        id: check_mention
+        run: |
+          if grep -q "@ai-agent" feedback.txt; then
+            echo "should_run=true" >> $GITHUB_OUTPUT
+          else
+            echo "should_run=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Run Aider Fix
+        if: steps.check_mention.outputs.should_run == 'true'
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          ALL_FEEDBACK=$(cat feedback.txt)
+          aider --architect --yes \
+            --model gemini/gemini-2.0-flash \
+            --message "A reviewer left feedback requesting code changes. \
+            First read AGENTS.md at the workspace root to ensure changes align \
+            with project standards. Then implement the following edits:
+
+            === REQUESTED EDITS ===
+            $ALL_FEEDBACK
+            ======================"
+
+      - name: Push Updated Code
+        if: steps.check_mention.outputs.should_run == 'true'
+        run: |
+          git push origin ${{ github.event.pull_request.head.ref }}

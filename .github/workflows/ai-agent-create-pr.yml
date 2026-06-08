@@ -1,0 +1,62 @@
+name: "AI Agent: Create PR from Jira"
+
+on:
+  repository_dispatch:
+    types: [jira-ticket-assigned]
+
+jobs:
+  create_pull_request:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Extract Jira fields from payload
+        id: jira
+        run: |
+          echo "ticket_id=${{ github.event.client_payload.issue.key }}" >> $GITHUB_OUTPUT
+          echo "ticket_title=${{ github.event.client_payload.issue.fields.summary }}" >> $GITHUB_OUTPUT
+          echo '${{ toJson(github.event.client_payload.issue.fields.description) }}' > ticket_description.txt
+
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Git User
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Create New Branch
+        run: git checkout -b feature/${{ steps.jira.outputs.ticket_id }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Aider
+        run: pip install aider-chat
+
+      - name: Run Aider
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          DESCRIPTION=$(cat ticket_description.txt)
+          aider --architect --yes \
+            --model gemini/gemini-2.0-flash \
+            --message "Task: ${{ steps.jira.outputs.ticket_title }}. \
+            Detailed Requirements: $DESCRIPTION. \
+            MANDATORY: Read AGENTS.md at the workspace root and strictly follow \
+            the defined architecture, naming conventions, and testing procedures \
+            before modifying any file."
+
+      - name: Push Code and Create Pull Request
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git push origin feature/${{ steps.jira.outputs.ticket_id }}
+          gh pr create \
+            --title "[${{ steps.jira.outputs.ticket_id }}] ${{ steps.jira.outputs.ticket_title }}" \
+            --body "PR generated automatically by AI Agent from Jira Ticket: ${{ steps.jira.outputs.ticket_id }}." \
+            --base main \
+            --head feature/${{ steps.jira.outputs.ticket_id }} \
+            --draft

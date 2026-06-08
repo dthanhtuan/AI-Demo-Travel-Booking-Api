@@ -99,18 +99,52 @@ docs/
 
 ---
 
-## Demo Scenarios
+## Scenarios
 
-This repo is the sample codebase for four AI-agent workflow scenarios:
+| # | Scenario | Ticket | Guide |
+|---|----------|--------|-------|
+| 1a | Single Dev — New feature, auto PR | SCRUM-5 | `step_to_demo/scenario-1a-new-feature-auto-pr.md` |
+| 1b | Single Dev — New feature, local only | SCRUM-5 | `step_to_demo/scenario-1b-new-feature-local.md` |
+| 2 | Single Dev — Bug fix | SCRUM-6 | `step_to_demo/scenario-2-bug-fix.md` |
+| 3 | Dev Team — Claude + Gemini in parallel | SCRUM-7 | `step_to_demo/scenario-3-team-parallel.md` |
+| 4 | Handoff — Mid-feature developer switch | SCRUM-7 | `step_to_demo/scenario-4-handoff.md` |
+| 5 | Full automation — Jira to AI to PR to review loop | SCRUM-8 | `step_to_demo/scenario-5-auto-pr-creation-from-jira-dashboard.md` |
 
-| # | Guide       | Scenario                            | Ticket  |
-|---|-------------|-------------------------------------|---------|
-| 1 | Single Dev  | Implement a new feature             | SCRUM-5 |
-| 2 | Single Dev  | Fix a bug on an existing project    | SCRUM-6 |
-| 3 | Dev Team    | Claude + Gemini in parallel         | SCRUM-7 |
-| 4 | Automation  | Jira ticket → AI → PR → reviewer    | SCRUM-5 |
+See `.ai/tickets/` for the full spec of each ticket.
 
-See `.ai/tickets/` for the full spec of each scenario.
+---
+
+## Automate Ticket to Pull Request
+
+Two ways to let the AI agent open a Pull Request without manual prompting.
+
+### Auto from Local
+
+The developer runs Claude Code locally and includes the PR instruction in the prompt.
+No CI/CD setup needed — works out of the box with `gh` CLI.
+
+```
+Implement ticket SCRUM-5 and open a PR
+```
+
+Claude reads the ticket, creates the branch, implements, runs tests, pushes, and opens a draft PR.
+See `step_to_demo/scenario-1a-new-feature-auto-pr.md` for the full walkthrough.
+
+### Auto from Jira Dashboard via GitHub Workflow
+
+The developer changes a ticket's state (or assigns it to the AI Agent) on the Jira board.
+A webhook fires automatically — no local terminal involved.
+
+| Stage | What happens |
+|-------|-------------|
+| 1. Jira ticket labeled `AI-Agent` and moved to *In Progress* | Jira Automation fires |
+| 2. Webhook | Jira sends ticket payload to GitHub Actions |
+| 3. GitHub Actions | Aider reads `AGENTS.md`, implements, opens draft PR |
+| 4. Engineer submits review comments tagged `@ai-agent` | GitHub Actions fires again |
+| 5. GitHub Actions | Aider reads the comments, fixes code, pushes again |
+
+Requires two GitHub Actions workflows and a Jira Automation webhook rule.
+See `step_to_demo/scenario-5-auto-pr-creation-from-jira-dashboard.md` for the full setup.
 
 ---
 
