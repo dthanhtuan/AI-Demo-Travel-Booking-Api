@@ -5,7 +5,7 @@
 ## Session Start
 
 1. Read `AGENTS.md`
-2. Read the assigned ticket in `.ai/tickets/`
+2. Follow the "When Implementing a Ticket" section in `AGENTS.md` for ticket fetch and PR steps.
 3. Run `npm test` before touching any code
 
 ## Working Style
@@ -19,10 +19,6 @@
 
 - Run `npm test` yourself — do not ask the user to run it.
 - After implementing, report test coverage and what changed.
-
-## Team Coordination (`.ai/` folder)
-
-- `.ai/tickets/` — one file per ticket; contains the Jira details, acceptance criteria, reviewer, shared contract for parallel features, and the handoff block if one exists.
 
 ## Bug Fixes
 

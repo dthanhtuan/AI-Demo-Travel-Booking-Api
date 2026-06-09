@@ -126,9 +126,33 @@ When stopping mid-task (end of session, handing off to another developer or mode
 
 When **picking up** a handoff: read the ticket file first — it contains both the spec and the handoff block. Confirm the state matches the branch, then continue.
 
+## When Implementing a Ticket
+
+Follow these steps whenever you are asked to implement a ticket (e.g. "Implement ticket SCRUM-5", "Implement SCRUM-5 and open a PR"):
+
+1. **Fetch the ticket from Jira** using the `jira` MCP tool (`jira_get_issue` with the ticket ID).
+   - If `.ai/tickets/<TICKET-ID>.md` already exists, read it instead — a parallel developer may have added a shared interface contract.
+   - After fetching, save the ticket details to `.ai/tickets/<TICKET-ID>.md` so the team can reference it.
+2. **Run `npm test`** to confirm the baseline before touching any code.
+3. **State your plan** — which files you will touch and why — before making any edits.
+4. **Implement** following the layered architecture and coding conventions in this file.
+5. **Run `npm test`** again and confirm all tests pass.
+6. **If asked to open a PR:**
+   a. Push the branch: `git push -u origin <branch-name>`
+   b. Create a draft PR:
+      ```
+      gh pr create \
+        --title "[TICKET-ID] <ticket title>" \
+        --body "<PR body following the Pull Request Rules below>" \
+        --base main \
+        --head <branch-name> \
+        --draft
+      ```
+   c. Output the PR URL.
+   - The reviewer is taken from the ticket (`- **Reviewer:**` field).
+
 ## Session Start Checklist (every model, every session)
 
 1. Read this file (`AGENTS.md`).
 2. Read your model-specific file (`CLAUDE.md` or `GEMINI.md`).
-3. Read `.ai/tickets/TICKET-ID.md` for the assigned ticket.
-4. Run `npm test` to confirm the current state before changing anything.
+3. Run `npm test` to confirm the current state before changing anything.

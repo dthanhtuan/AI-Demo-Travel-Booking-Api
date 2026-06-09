@@ -5,7 +5,7 @@
 ## Session Start
 
 1. Read `AGENTS.md`
-2. Read the assigned ticket in `.ai/tickets/`
+2. Follow the "When Implementing a Ticket" section in `AGENTS.md` for ticket fetch and PR steps.
 3. Run `npm test` before touching any code
 
 ## Working Style
@@ -18,10 +18,6 @@
 
 - Run `npm test` to verify changes — do not report done without a passing suite.
 - Follow the existing layered pattern exactly: match the structure of `venue/`, `customer/`, and `booking/` folders.
-
-## Team Coordination (`.ai/` folder)
-
-- `.ai/tickets/` — one file per ticket; contains the Jira details, acceptance criteria, reviewer, shared contract for parallel features, and the handoff block if one exists.
 
 ## Bug Fixes
 
