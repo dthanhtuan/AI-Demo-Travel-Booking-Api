@@ -22,7 +22,7 @@ From that point, no human types a single line of code. The system:
 | **1. Jira Ticket**           | Developer changes state and assigns to AI Agent                                |
 | **2. Web Request**           | Jira sends ticket payload to GitHub API                                        |
 | **3. Workflow 1: Create PR** | Runner starts Aider, reads `AGENTS.md`, opens draft PR                         |
-| **4. Engineer Review**       | Engineer reads the diff and writes review comments tagged `@ai-agent`          |
+| **4. Engineer Review**       | Engineer reads the diff and writes review comments tagged `/ai-agent`          |
 | **5. Workflow 2: Fix PR**    | Engineer submits review, runner scrapes comments, Aider edits and pushes again |
 
 ---
@@ -336,7 +336,7 @@ jobs:
       - name: Check for AI Agent Mention
         id: check_mention
         run: |
-          if grep -q "@ai-agent" feedback.txt; then
+          if grep -q "/ai-agent" feedback.txt; then
             echo "should_run=true" >> $GITHUB_OUTPUT
           else
             echo "should_run=false" >> $GITHUB_OUTPUT
@@ -373,7 +373,7 @@ jobs:
 ## How the Review Loop Works
 
 1. PR is opened as **Draft** — engineer opens it, reads the diff
-2. Engineer clicks **Start a review**, adds comments on specific lines, tags `@ai-agent` where a fix is needed
+2. Engineer clicks **Start a review**, adds comments on specific lines, tags `/ai-agent` where a fix is needed
 3. Engineer clicks **Submit Review** — Workflow 2 fires, Aider reads all comments in that batch, fixes code, pushes
 4. GitHub updates the PR automatically — engineer refreshes and reviews the new diff
 5. Repeat as many times as needed — each **Submit Review** triggers a fresh run scoped to only the new comments

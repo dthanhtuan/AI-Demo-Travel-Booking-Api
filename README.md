@@ -140,7 +140,7 @@ A webhook fires automatically — no local terminal involved.
 | 1. Jira ticket labeled `AI-Agent` and moved to *In Progress* | Jira Automation fires |
 | 2. Webhook | Jira sends ticket payload to GitHub Actions |
 | 3. GitHub Actions | Aider reads `AGENTS.md`, implements, opens draft PR |
-| 4. Engineer submits review comments tagged `@ai-agent` | GitHub Actions fires again |
+| 4. Engineer submits review comments tagged `/ai-agent` | GitHub Actions fires again |
 | 5. GitHub Actions | Aider reads the comments, fixes code, pushes again |
 
 Requires two GitHub Actions workflows and a Jira Automation webhook rule.

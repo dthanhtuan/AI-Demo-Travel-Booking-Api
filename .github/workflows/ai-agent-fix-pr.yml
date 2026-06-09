@@ -59,7 +59,7 @@ jobs:
       - name: Check for AI Agent Mention
         id: check_mention
         run: |
-          if grep -q "@ai-agent" feedback.txt; then
+          if grep -q "/ai-agent" feedback.txt; then
             echo "should_run=true" >> $GITHUB_OUTPUT
           else
             echo "should_run=false" >> $GITHUB_OUTPUT
