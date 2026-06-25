@@ -146,9 +146,10 @@ A webhook fires automatically — no local terminal involved.
 Requires two GitHub Actions workflows and a Jira Automation webhook rule.
 See `step_to_demo/scenario-5-auto-pr-creation-from-jira-dashboard.md` for the full setup.
 
-[jira-to-github-pr-2.webm](https://github.com/user-attachments/assets/bb513536-3e09-45e2-8e24-ec78e9d71815)
 
 [jira-to-github-pr-1.webm](https://github.com/user-attachments/assets/2d8bb9ee-5ba7-4b27-a11c-1703a66b61aa)
+
+[jira-to-github-pr-2.webm](https://github.com/user-attachments/assets/bb513536-3e09-45e2-8e24-ec78e9d71815)
 
 ---
 
