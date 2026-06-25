@@ -1,0 +1,122 @@
+name: PR Comment AI Agent — Amend PR
+
+on:
+  issue_comment:
+    types: [created]
+  # Fires whenever anyone comments on a PR.
+  # We filter below to only act on comments that tag the agent
+  # and only on PRs (not plain issues).
+
+jobs:
+  amend-pr:
+    runs-on: self-hosted          # executes on your machine, not GitHub's
+
+    # Only run when:
+    # 1. The comment is on a PR (not a plain issue)
+    # 2. The comment mentions @ai-agent  (avoids reacting to every comment)
+    # 3. The PR was created by the AI agent (branch prefix ai-agent/)
+    if: |
+      github.event.issue.pull_request != null &&
+      contains(github.event.comment.body, '@ai-agent')
+
+    steps:
+      # ── 1. Extract comment and PR context ─────────────────────────────
+      - name: Parse event context
+        id: ctx
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          PR_NUMBER="${{ github.event.issue.number }}"
+          COMMENT_BODY="${{ github.event.comment.body }}"
+          COMMENTER="${{ github.event.comment.user.login }}"
+
+          # Fetch PR metadata (branch name, title) via GitHub API — no checkout needed
+          PR_JSON=$(gh api repos/${{ github.repository }}/pulls/${PR_NUMBER})
+          BRANCH=$(echo $PR_JSON | jq -r '.head.ref')
+          PR_TITLE=$(echo $PR_JSON | jq -r '.title')
+
+          echo "PR_NUMBER=${PR_NUMBER}"         >> $GITHUB_ENV
+          echo "COMMENT_BODY=${COMMENT_BODY}"   >> $GITHUB_ENV
+          echo "COMMENTER=${COMMENTER}"         >> $GITHUB_ENV
+          echo "BRANCH=${BRANCH}"               >> $GITHUB_ENV
+          echo "PR_TITLE=${PR_TITLE}"           >> $GITHUB_ENV
+
+      # ── 2. Acknowledge the comment immediately ─────────────────────────
+      - name: React to comment
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Add 👀 reaction so the reviewer knows the agent picked it up
+          gh api \
+            repos/${{ github.repository }}/issues/comments/${{ github.event.comment.id }}/reactions \
+            -X POST \
+            -f content='eyes'
+
+      # ── 3. Sync to the PR branch — no clone, just pull ────────────────
+      - name: Sync to PR branch
+        run: |
+          cd ${{ vars.REPO_PATH }}
+          git fetch origin
+          git checkout ${{ env.BRANCH }}
+          git pull origin ${{ env.BRANCH }}
+
+      # ── 4. Run Claude Code with comment as instruction ─────────────────
+      - name: Run Claude Code
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd ${{ vars.REPO_PATH }}
+
+          # Fetch the PR diff to give Claude focused context
+          PR_DIFF=$(gh api repos/${{ github.repository }}/pulls/${{ env.PR_NUMBER }} \
+            -H "Accept: application/vnd.github.v3.diff")
+
+          claude --print \
+            "You are an AI coding agent reviewing feedback on a PR you created.\n\n
+            PR Title: ${{ env.PR_TITLE }}\n
+            Reviewer: ${{ env.COMMENTER }}\n\n
+            Reviewer feedback:\n
+            ${{ env.COMMENT_BODY }}\n\n
+            Current PR diff for context:\n
+            ${PR_DIFF}\n\n
+            Instructions:\n
+            - Address the reviewer's feedback precisely\n
+            - Read any relevant files in the repo before making changes\n
+            - Only change what the feedback asks for — do not refactor unrelated code\n
+            - If the feedback is a question rather than a change request, do not modify code\n
+              and instead reply with a GitHub comment explaining your reasoning"
+
+      # ── 5. Commit and push amendment ──────────────────────────────────
+      - name: Commit and push changes
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd ${{ vars.REPO_PATH }}
+          git config user.name "AI Agent"
+          git config user.email "ai-agent@yourcompany.com"
+          git add -A
+
+          # Only commit if there are actual changes
+          if git diff --cached --quiet; then
+            echo "HAS_CHANGES=false" >> $GITHUB_ENV
+          else
+            git commit -m "fix: address review feedback from ${{ env.COMMENTER }}"
+            git push origin ${{ env.BRANCH }}
+            echo "HAS_CHANGES=true" >> $GITHUB_ENV
+          fi
+
+      # ── 6. Reply on the PR with what was done ─────────────────────────
+      - name: Post reply comment
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ "${{ env.HAS_CHANGES }}" = "true" ]; then
+            REPLY="Hey @${{ env.COMMENTER }}, I've addressed your feedback and pushed an update. Please take another look."
+          else
+            REPLY="Hey @${{ env.COMMENTER }}, I reviewed your feedback but found no code changes were needed. Let me know if I misunderstood."
+          fi
+
+          gh pr comment ${{ env.PR_NUMBER }} \
+            --repo ${{ github.repository }} \
+            --body "${REPLY}"
