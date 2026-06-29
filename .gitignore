@@ -7,3 +7,4 @@ coverage/
 
 # Claude Code project settings (contains API credentials — copy from settings.example.json)
 .claude/settings.json
+.idea
