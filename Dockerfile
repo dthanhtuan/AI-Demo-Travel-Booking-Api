@@ -1,4 +1,4 @@
-FROM node:20-alpine
+FROM node:20
 
 WORKDIR /app
 
@@ -13,4 +13,4 @@ EXPOSE 3000
 
 # Default command runs migrations then starts the dev server.
 # Overridden by docker-compose for the test service.
-CMD ["sh", "-c", "npm run migrate && npm run dev"]
+CMD ["sh", "-c", "npm run migrate && npm run seed && npm run dev"]
