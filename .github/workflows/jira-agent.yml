@@ -1,0 +1,98 @@
+name: JIRA AI Agent — Create PR
+
+on:
+  repository_dispatch:
+    types: [jira-ai-agent-label]
+  # GitHub's JIRA integration fires a repository_dispatch event
+  # when the ai-agent label is added to a ticket.
+  # Configure the webhook in JIRA → Project Settings → Automation
+  # to POST to: https://api.github.com/repos/{org}/{repo}/dispatches
+  # with event_type: "jira-ai-agent-label"
+
+jobs:
+  create-pr:
+    runs-on: self-hosted          # executes on your machine, not GitHub's
+
+    steps:
+      # ── 1. Extract JIRA payload ────────────────────────────────────────
+      - name: Parse JIRA event payload
+        id: jira
+        run: |
+          # These fields come from the JIRA webhook payload
+          # forwarded via repository_dispatch client_payload
+          echo "TICKET_KEY=${{ github.event.client_payload.issue.key }}" >> $GITHUB_ENV
+          echo "TICKET_SUMMARY=${{ github.event.client_payload.issue.fields.summary }}" >> $GITHUB_ENV
+          echo "TICKET_DESCRIPTION=${{ github.event.client_payload.issue.fields.description }}" >> $GITHUB_ENV
+          echo "TICKET_URL=${{ github.event.client_payload.issue.self }}" >> $GITHUB_ENV
+
+      # ── 2. Sync repo — no clone needed, already on machine ────────────
+      - name: Sync repo
+        run: |
+          cd ${{ vars.REPO_PATH }}
+          git fetch origin
+          git checkout main
+          git pull origin main
+
+      # ── 3. Create a feature branch for this ticket ────────────────────
+      - name: Create feature branch
+        run: |
+          cd ${{ vars.REPO_PATH }}
+          BRANCH="ai-agent/${{ env.TICKET_KEY }}"
+          git checkout -b $BRANCH || git checkout $BRANCH
+          echo "BRANCH=${BRANCH}" >> $GITHUB_ENV
+
+      # ── 4. Run Claude Code with the ticket context ────────────────────
+      - name: Run Claude Code
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          cd ${{ vars.REPO_PATH }}
+          claude --print \
+            "You are an AI coding agent. Implement the following JIRA ticket.\n\n
+            Ticket: ${{ env.TICKET_KEY }}\n
+            Summary: ${{ env.TICKET_SUMMARY }}\n
+            Description: ${{ env.TICKET_DESCRIPTION }}\n\n
+            Instructions:\n
+            - Read the existing codebase to understand patterns and conventions\n
+            - Implement the required changes\n
+            - Write or update tests where appropriate\n
+            - Do not break existing functionality\n
+            - Keep changes focused on what the ticket asks for"
+
+      # ── 5. Commit changes ─────────────────────────────────────────────
+      - name: Commit changes
+        run: |
+          cd ${{ vars.REPO_PATH }}
+          git config user.name "AI Agent"
+          git config user.email "ai-agent@yourcompany.com"
+          git add -A
+          git diff --cached --quiet || git commit -m "feat(${{ env.TICKET_KEY }}): ${{ env.TICKET_SUMMARY }}"
+
+      # ── 6. Push branch and open PR ────────────────────────────────────
+      - name: Push branch and create PR
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd ${{ vars.REPO_PATH }}
+          git push origin ${{ env.BRANCH }}
+
+          PR_URL=$(gh pr create \
+            --title "[${{ env.TICKET_KEY }}] ${{ env.TICKET_SUMMARY }}" \
+            --body "## JIRA Ticket\n[${{ env.TICKET_KEY }}](${{ env.TICKET_URL }})\n\n## Summary\n${{ env.TICKET_DESCRIPTION }}\n\n---\n_This PR was created by the AI agent._" \
+            --base main \
+            --head ${{ env.BRANCH }})
+
+          echo "PR_URL=${PR_URL}" >> $GITHUB_ENV
+
+      # ── 7. Comment PR link back on JIRA ticket ────────────────────────
+      - name: Post PR link to JIRA
+        env:
+          JIRA_BASE_URL: ${{ vars.JIRA_BASE_URL }}
+          JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+        run: |
+          curl -s -X POST \
+            "${{ env.JIRA_BASE_URL }}/rest/api/3/issue/${{ env.TICKET_KEY }}/comment" \
+            -H "Authorization: Basic $(echo -n ${{ env.JIRA_USER_EMAIL }}:${{ env.JIRA_API_TOKEN }} | base64)" \
+            -H "Content-Type: application/json" \
+            -d "{\"body\": {\"type\": \"doc\", \"version\": 1, \"content\": [{\"type\": \"paragraph\", \"content\": [{\"type\": \"text\", \"text\": \"AI Agent has created a PR: ${{ env.PR_URL }}\"}]}]}}"
